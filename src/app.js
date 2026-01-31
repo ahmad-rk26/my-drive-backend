@@ -19,7 +19,7 @@ const app = express();
 // CORS configuration (adjust origin in production)
 app.use(
     cors({
-        origin: "https://ak-drive.netlify.app/", // ← change to your frontend URL in production
+        origin: "https://ak-drive.netlify.app", // ← change to your frontend URL in production
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allowedHeaders: ["Content-Type", "Authorization"],
