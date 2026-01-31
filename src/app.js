@@ -2,7 +2,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import "./config/env.js"; // assuming this loads your .env
+import "./config/env.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import fileRoutes from "./routes/file.routes.js";
@@ -11,32 +11,58 @@ import statsRoutes from "./routes/stats.routes.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
 
-// Import cron job
-import "./jobs/trash-purge.job.js";  // ← this will run the cron automatically on import
+// cron job
+import "./jobs/trash-purge.job.js";
 
 const app = express();
 
-// CORS configuration (adjust origin in production)
+/* ======================
+   CORS CONFIG (SAFE)
+   ====================== */
+
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://ak-drive.netlify.app",
+];
+
 app.use(
     cors({
-        origin: "http://localhost:5173", // ← change to your frontend URL in production
+        origin: (origin, callback) => {
+            if (!origin) return callback(null, true);
+
+            if (allowedOrigins.includes(origin)) {
+                callback(null, true);
+            } else {
+                callback(new Error("CORS not allowed"));
+            }
+        },
         credentials: true,
-        methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+        methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
         allowedHeaders: ["Content-Type", "Authorization"],
     })
 );
+
+/* ======================
+   MIDDLEWARES
+   ====================== */
 
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use(cookieParser());
 
-// Routes
+/* ======================
+   ROUTES
+   ====================== */
+
 app.use("/api/auth", authRoutes);
 app.use("/api/files", fileRoutes);
 app.use("/api/folders", folderRoutes);
 app.use("/api/stats", statsRoutes);
 
-// Global error handler (should be last)
+/* ======================
+   ERROR HANDLER
+   ====================== */
+
 app.use(errorHandler);
 
 export default app;
