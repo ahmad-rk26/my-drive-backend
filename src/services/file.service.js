@@ -60,7 +60,8 @@ export const uploadFilesUnified = async (req) => {
             }
 
             // Upload file
-            const storagePath = `${userId}/${uuid()}-${fileName}`;
+            const sanitizedFileName = fileName.replace(/[^\w\s.-]/g, '_');
+            const storagePath = `${userId}/${uuid()}-${sanitizedFileName}`;
             const { error: uploadError } = await supabase.storage
                 .from("drive")
                 .upload(storagePath, file.buffer, {
@@ -95,7 +96,8 @@ export const uploadFilesUnified = async (req) => {
     } else {
         // ──────────────── FLAT FILES (single or multiple) ────────────────
         for (const file of files) {
-            const storagePath = `${userId}/${uuid()}-${file.originalname}`;
+            const sanitizedFileName = file.originalname.replace(/[^\w\s.-]/g, '_');
+            const storagePath = `${userId}/${uuid()}-${sanitizedFileName}`;
 
             const { error: uploadError } = await supabase.storage
                 .from("drive")
